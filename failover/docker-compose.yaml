@@ -8,29 +8,20 @@ services:
     restart: always
     ports:
       - 8001:7001
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.11
   redis-2:
     image: redis:6.0
-    command: --port 7002 --slaveof 10.6.0.11 7001
+    command: --port 7002 --slaveof redis-data-1 7001
     container_name: redis-data-2
     restart: always
     ports:
       - 8002:7002
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.12
   redis-3:
     image: redis:6.0
-    command: --port 7003 --slaveof 10.6.0.11 7001
+    command: --port 7003 --slaveof redis-data-1 7001
     container_name: redis-data-3
     restart: always
     ports:
       - 8003:7003
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.13
   sentinel-1:
     image: redis:6.0
     command: /redis/sentinel.conf --port 7004 --sentinel
@@ -40,9 +31,6 @@ services:
       - 8004:7004
     volumes:
       - ./sentinel.conf:/redis/sentinel.conf
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.14
     depends_on:
       - redis-1
       - redis-2
@@ -56,9 +44,6 @@ services:
       - 8005:7005
     volumes:
       - ./sentinel.conf:/redis/sentinel.conf
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.15
     depends_on:
       - redis-1
       - redis-2
@@ -72,18 +57,8 @@ services:
       - 8006:7006
     volumes:
       - ./sentinel.conf:/redis/sentinel.conf
-    networks:
-      sentinel-vpcbr:
-        ipv4_address: 10.6.0.16
     depends_on:
       - redis-1
       - redis-2
       - redis-3
 
-networks:
-  sentinel-vpcbr:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 10.6.0.0/16
-         gateway: 10.6.0.1
